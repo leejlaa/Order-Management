@@ -7,6 +7,10 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 
 
@@ -15,17 +19,21 @@ import jakarta.persistence.Table;
 public class Order {
 
     @Id
-    @Column(name = "orderID")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long orderID;
-    private Customer customer;
-    private List<Product> products;
 
-    Order(Long orderID, Customer customer, List<Product> products) {
+    @ManyToOne
+    @JoinColumn(name = "customer_id")
+    private Customer customer;
+
+    @OneToMany(mappedBy = "order")
+    private List<OrderProduct> orderProducts;
+
+    public Order(Long orderID, Customer customer, List<OrderProduct> orderProducts) {
         this.orderID = orderID;
         this.customer = customer;
-        this.products = products;
-    }
+        this.orderProducts = orderProducts;
+    }  
 
     public Long getOrderID() {
         return orderID;
@@ -43,13 +51,7 @@ public class Order {
         this.customer = customer;
     }
 
-    public List<Product> getProducts() {
-        return products;
-    }
 
-    public void setProducts(List<Product> products) {
-        this.products = products;
-    }
 }
 
     

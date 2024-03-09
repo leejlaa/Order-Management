@@ -30,8 +30,8 @@ public class CustomerController {
     }
 
     @GetMapping
-    public String getCustomers() {
-        return "Hello World";
+    public List<Customer> getCustomers() {
+        return customerService.getCustomers();
     }
     
     @GetMapping("/{id}")

@@ -1,18 +1,39 @@
 package com.example.demo.models;
 
+import jakarta.persistence.Column;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.MappedSuperclass;
+
+@MappedSuperclass
 public abstract class User {
 
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "ID")
+    private Long ID;
+
+    @Column(name = "userName")
     private String userName;
     private String password;
     private String email;
     private String role;
 
 
-    User(String userName, String password, String email, String role) {
+    User(Long ID, String userName, String password, String email, String role) {
         this.userName = userName;
         this.password = password;
         this.email = email;
         this.role = role;
+    }
+
+    public Long getID() {
+        return ID;
+    }
+
+    public void setID(Long ID) {
+        this.ID = ID;
     }
 
     public String getUserName() {

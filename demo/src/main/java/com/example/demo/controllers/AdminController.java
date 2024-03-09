@@ -36,7 +36,7 @@ public class AdminController {
     }
 
     @GetMapping("/{id}")
-        public Admin getAdmin(@RequestParam Long id) {
+        public Admin getAdmin(@PathVariable Long id) {
             return adminService.getAdmin(id);
     }
 

@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.example.demo.models.Product;
+import com.example.demo.repositories.AdminRepository;
 import com.example.demo.repositories.ProductRepository;
 
 @Service
@@ -13,8 +14,11 @@ public class ProductService {
     
     @Autowired // sets the repository to be used by the service in the constructor.
     private ProductRepository productRepository;
+    @Autowired
+    private AdminRepository adminRepository;
 
     public Product createProduct(Product product) {
+        product.createOrUpdateWithAdmin(adminRepository);
         return productRepository.save(product);
     }
 

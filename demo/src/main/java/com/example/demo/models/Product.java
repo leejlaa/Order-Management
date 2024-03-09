@@ -1,36 +1,55 @@
 package com.example.demo.models;
 
 import java.sql.Date;
+import java.util.List;
 
+import org.hibernate.annotations.Cascade;
+
+import com.example.demo.repositories.AdminRepository;
+
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
+
 
 @Entity
 @Table(name = "products")
 public class Product {
     
     @Id
-    @Column(name = "adminID")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long productID;
     private String productName;
-    private Double price;
+    private double price;
     private Date releaseDate;
     private Date availabilityDate;
     private int quantity;
 
-    Product(Long productID, String productName, Double price, Date releaseDate, Date availabilityDate, int quantity) {
+    @ManyToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "admin_id" , insertable = false, updatable = false) // Name of the foreign key column in the product table
+    private Admin admin;
+
+    @OneToMany(mappedBy = "product")
+    private List<OrderProduct> orderProducts;
+
+    public Product(Long productID, String productName, double price, Date releaseDate, Date availabilityDate, int quantity, Admin admin, List<OrderProduct> orderProducts) {
         this.productID = productID;
         this.productName = productName;
         this.price = price;
         this.releaseDate = releaseDate;
         this.availabilityDate = availabilityDate;
         this.quantity = quantity;
+        this.admin = admin;
+        this.orderProducts = orderProducts;
     }
+
 
     public Long getProductID() {
         return productID;
@@ -79,4 +98,27 @@ public class Product {
     public void setQuantity(int quantity) {
         this.quantity = quantity;
     }
+
+    public Admin getAdmin() {
+        return admin;
+    }
+
+    
+   public void createOrUpdateWithAdmin(AdminRepository adminRepository) {
+    if (this.admin != null) {
+        Admin existingAdmin = adminRepository.findByUserName(this.admin.getUserName());
+
+        if (existingAdmin != null) {
+            this.admin = existingAdmin;
+        } else {
+            adminRepository.save(this.admin);
+        }
+    }
+}
+
+    public void setAdmin(Admin admin) {
+        this.admin = admin;
+    }
+
+
 }

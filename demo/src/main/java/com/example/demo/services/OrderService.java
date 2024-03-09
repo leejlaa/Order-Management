@@ -50,7 +50,7 @@ public class OrderService {
         Order existingOrder = orderRepository.findById(id).orElse(null);
         if (existingOrder != null) {
             existingOrder.setCustomer(order.getCustomer());
-            existingOrder.setProducts(order.getProducts());
+            //existingOrder.setProducts(order.getProducts());
             return orderRepository.save(existingOrder);
         }
         return null;

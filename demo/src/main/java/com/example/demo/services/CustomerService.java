@@ -53,5 +53,10 @@ public class CustomerService {
         return customerRepository.findAll();
     }
 
+    public boolean customerExists(String username, String password) {
+        Customer customer = customerRepository.findByUserNameAndPassword(username, password);
+        return customer != null;
+    }
+
     
 }

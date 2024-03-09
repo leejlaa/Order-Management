@@ -13,6 +13,8 @@ public interface CustomerRepository extends JpaRepository<Customer, Long> {
     @Query("SELECT c FROM Customer c WHERE c.userName = :userName")
     Customer findByUserName(@Param("userName") String userName);
 
+    Customer findByUserNameAndPassword(String username, String password);
+
 }
     
 

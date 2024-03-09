@@ -1,18 +1,28 @@
 package com.example.demo;
 
+import java.util.Scanner;
+
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration;
 import org.springframework.boot.web.servlet.support.SpringBootServletInitializer;
+import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
+
+import com.example.demo.models.Main;
 
 
-@SpringBootApplication(exclude={DataSourceAutoConfiguration.class}, scanBasePackages = {"com.example.demo.repository", "com.example.demo.service", "com.example.demo.controller"})
+@SpringBootApplication( scanBasePackages = {"com.example.demo.*"})
 public class DemoApplication {
 
 	public static void main(String[] args) {
-		SpringApplication.run(DemoApplication.class, args);
+		ConfigurableApplicationContext context = SpringApplication.run(DemoApplication.class, args);
+        Main main = context.getBean(Main.class);
+        main.main();
+
+		
 	}
 
 }

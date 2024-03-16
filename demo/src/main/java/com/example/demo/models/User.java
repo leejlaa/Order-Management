@@ -14,12 +14,16 @@ public abstract class User {
     @Column(name = "ID")
     private Long ID;
 
-    @Column(name = "userName")
+    @Column(name = "user_name", unique = true)
     private String userName;
     private String password;
     private String email;
     private String role;
 
+
+    User(){
+
+    }
 
     User(Long ID, String userName, String password, String email, String role) {
         this.userName = userName;

@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.example.demo.models.Admin;
-import com.example.demo.services.AdminService;
+import com.example.demo.services.impl.AdminServiceImpl;
 
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -23,7 +23,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 public class AdminController {
 
     @Autowired 
-    private AdminService adminService;
+    private AdminServiceImpl adminService;
 
     @PostMapping
     public Admin createAdmin(@RequestBody Admin admin) {

@@ -13,16 +13,16 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.example.demo.models.OrderProduct;
-import com.example.demo.services.OrderProductService;
+import com.example.demo.services.impl.OrderProductServiceImpl;
 
 @RestController
 @RequestMapping("/order-products")
 public class OrderProductController {
 
     @Autowired
-    private OrderProductService orderProductService;
+    private OrderProductServiceImpl orderProductService;
 
-    public OrderProductController(OrderProductService orderProductService) {
+    public OrderProductController(OrderProductServiceImpl orderProductService) {
         this.orderProductService = orderProductService;
     }
 

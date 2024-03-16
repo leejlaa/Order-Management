@@ -1,7 +1,11 @@
 package com.example.demo.models;
 import java.util.List;
+import java.util.Objects;
+
+import org.json.simple.JSONObject;
 
 import jakarta.persistence.*;
+
 
 @Entity
 @Table(name = "admins")
@@ -15,7 +19,7 @@ public class Admin  extends User{
     @OneToMany(mappedBy = "createdByAdmin")
     private List<Admin> createdAdmins;
 
-    @OneToMany(mappedBy = "admin", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "admin")
     private List<Customer> createdCustomers;
 
     public Admin getCreatedByAdmin() {
@@ -49,8 +53,41 @@ public class Admin  extends User{
         this.createdCustomers = customers;
     }
 
+    public Admin() {
+        super();
+    }
 
-   
 
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null || getClass() != obj.getClass()) {
+            return false;
+        }
+        Admin other = (Admin) obj;
+        return Objects.equals(getID(), other.getID()) &&
+                Objects.equals(getUserName(), other.getUserName()) &&
+                Objects.equals(getPassword(), other.getPassword()) &&
+                Objects.equals(getEmail(), other.getEmail()) &&
+                Objects.equals(getCreatedByAdmin(), other.getCreatedByAdmin()) &&
+                Objects.equals(getCreatedAdmins(), other.getCreatedAdmins()) &&
+                Objects.equals(getCreatedCustomers(), other.getCreatedCustomers());
+    }
    
+    public String toJson() {
+        JSONObject json = new JSONObject();
+        json.put("ID", this.getID());
+        json.put("username", this.getUserName());
+        json.put("password", this.getPassword());
+        json.put("email", this.getEmail());
+        json.put("role", this.getRole());
+        json.put("createdByAdmin", this.createdByAdmin != null ? createdByAdmin.toJson() : null);
+        json.put("createdAdmins", this.createdAdmins);
+        json.put("createdCustomers", this.createdCustomers);
+        
+
+        return json.toString();
+    }
 }

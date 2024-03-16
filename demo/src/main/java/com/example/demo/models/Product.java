@@ -1,6 +1,6 @@
 package com.example.demo.models;
 
-import java.sql.Date;
+import java.util.Date;
 import java.util.List;
 
 import org.hibernate.annotations.Cascade;
@@ -25,6 +25,8 @@ public class Product {
     
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+
+    @Column(name = "product_id")
     private Long productID;
     private String productName;
     private double price;
@@ -32,11 +34,11 @@ public class Product {
     private Date availabilityDate;
     private int quantity;
 
-    @ManyToOne(cascade = CascadeType.ALL)
-    @JoinColumn(name = "admin_id" , insertable = false, updatable = false) // Name of the foreign key column in the product table
+    @ManyToOne
+    @JoinColumn(name = "admin_id", unique = false) // Name of the foreign key column in the product table
     private Admin admin;
 
-    @OneToMany(mappedBy = "product")
+    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL)
     private List<OrderProduct> orderProducts;
 
     public Product(Long productID, String productName, double price, Date releaseDate, Date availabilityDate, int quantity, Admin admin, List<OrderProduct> orderProducts) {
@@ -47,6 +49,17 @@ public class Product {
         this.availabilityDate = availabilityDate;
         this.quantity = quantity;
         this.admin = admin;
+        this.orderProducts = orderProducts;
+    }
+    
+    public Product() {
+    }
+
+    public List<OrderProduct> getOrderProducts() {
+        return orderProducts;
+    }
+
+    public void setOrderProducts(List<OrderProduct> orderProducts) {
         this.orderProducts = orderProducts;
     }
 
@@ -104,21 +117,12 @@ public class Product {
     }
 
     
-   public void createOrUpdateWithAdmin(AdminRepository adminRepository) {
-    if (this.admin != null) {
-        Admin existingAdmin = adminRepository.findByUserName(this.admin.getUserName());
-
-        if (existingAdmin != null) {
-            this.admin = existingAdmin;
-        } else {
-            adminRepository.save(this.admin);
-        }
-    }
-}
+ 
 
     public void setAdmin(Admin admin) {
         this.admin = admin;
     }
 
+    
 
 }

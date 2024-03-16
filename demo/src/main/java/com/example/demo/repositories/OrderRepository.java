@@ -11,8 +11,15 @@ import com.example.demo.models.Order;
 @Repository
 public interface OrderRepository extends JpaRepository<Order, Long> {
 
-    @Query("SELECT o FROM Order o WHERE o.ID = :ID")
+    @Query("SELECT o FROM Order o WHERE o.customer.ID = :ID")
     List<Order> findByCustomerID(Long ID);
+
+    @Query("SELECT o FROM Order o JOIN FETCH o.orderProducts")
+    List<Order> findAllOrdersWithProducts();
+
+    @Query("SELECT o FROM Order o JOIN FETCH o.orderProducts WHERE o.customer.ID = :ID")
+    List<Order> findAllOrdersWithProductsByCustomerID(Long ID);
+
 
 }
 

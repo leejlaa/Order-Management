@@ -12,7 +12,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.example.demo.models.Order;
-import com.example.demo.services.OrderService;
+import com.example.demo.services.impl.OrderServiceImpl;
+
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -23,31 +24,28 @@ import org.springframework.web.bind.annotation.RequestParam;
 public class OrderController {
     
     @Autowired
-    private OrderService orderService;
+    private OrderServiceImpl orderService;
 
-   @PostMapping("/{customerId}")
-    public ResponseEntity<Order> createOrderForCustomer(
-            @PathVariable Long customerId,
-            @RequestBody Order order) {
+//    @PostMapping("/{customerId}")
+//     public ResponseEntity<Order> createOrderForCustomer(
+//             @PathVariable Long customerId,
+//             @RequestBody Order order) {
         
-        Order createdOrder = orderService.createOrderForCustomer(customerId, order);
-        return ResponseEntity.status(HttpStatus.CREATED).body(createdOrder);
-    }
+//         // Order createdOrder = orderService.createOrderForCustomer(customerId, order);
+//         // return ResponseEntity.status(HttpStatus.CREATED).body(createdOrder);
+//     }
 
-    @GetMapping
-    public List<Order> getOrders() {
-        return orderService.getOrders();
-    }
+   
 
     @GetMapping("/{id}")
     public Order getOrder(@RequestParam Long id) {
         return orderService.getOrder(id);
     }
 
-    @GetMapping("/{customerId}")
-    public List<Order> getOrdersByCustomer(@PathVariable Long customerId) {
-        return orderService.getOrdersByCustomer(customerId);
-    }
+    // @GetMapping("/{customerId}")
+    // public Order getOrdersByCustomer(@PathVariable Long customerId) {
+    //     return orderService.getOrderByCustomer(customerId);
+    // }
 
     @PutMapping("/{id}")
     public Order updateOrder(@PathVariable Long id, @RequestBody Order order) {

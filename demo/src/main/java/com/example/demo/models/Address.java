@@ -73,6 +73,35 @@ public class Address {
     public void setCountry(String country) {
         this.country = country;
     }
+
+    public List<Customer> getCustomers() {
+        return customers;
+    }
+
+    public void setCustomers(List<Customer> customers) {
+        this.customers = customers;
+    }
+
+    public Address() {
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null || getClass() != obj.getClass()) {
+            return false;
+        }
+        Address other = (Address) obj;
+        return 
+                streetAddress.equals(other.streetAddress) &&
+                postalCode == other.postalCode &&
+                city.equals(other.city) &&
+                country.equals(other.country) &&
+                customers.equals(other.customers);
+    }
+
 }
     
     

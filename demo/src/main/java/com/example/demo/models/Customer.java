@@ -1,12 +1,16 @@
 package com.example.demo.models;
 
-import java.sql.Date;
+import java.util.Date;
 import java.util.List;
+import java.util.Objects;
+
+import org.springframework.context.annotation.Lazy;
 
 import jakarta.persistence.AttributeOverride;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -20,11 +24,17 @@ import jakarta.persistence.Table;
 @AttributeOverride(name = "ID", column = @Column(name = "customer_id"))
 public class Customer extends User{
 
+    
     private String firstName;
+
+    @Column(name = "last_name")
     private String lastName;
+
+    @Column(name = "date_of_birth")
     private Date dateOfBirth;
 
-    @ManyToOne(cascade = CascadeType.ALL)
+    
+    @ManyToOne(cascade = CascadeType.MERGE, fetch = FetchType.LAZY)
     @JoinColumn(name = "address_id")
     private Address currentResidence;
 
@@ -32,7 +42,7 @@ public class Customer extends User{
     @OneToMany(mappedBy = "customer", cascade = CascadeType.ALL)
     private List<Order> orders;
 
-    @ManyToOne
+    @ManyToOne(cascade = CascadeType.MERGE)
     @JoinColumn(name = "admin_id")
     private Admin admin;
 
@@ -46,6 +56,10 @@ public class Customer extends User{
         this.admin = admin;
     }
    
+    public Customer() {
+        super();
+    }
+
     public Admin getAdmin() {
         return admin;
     }
@@ -98,6 +112,25 @@ public class Customer extends User{
         this.orders.add(order);
     }
     
+@Override
+public boolean equals(Object o) {
+    if (this == o) return true;
+    if (o == null || getClass() != o.getClass()) return false;
+    if (!super.equals(o)) return false;
+    Customer customer = (Customer) o;
+    return Objects.equals(firstName, customer.firstName) &&
+            Objects.equals(lastName, customer.lastName) &&
+            Objects.equals(dateOfBirth, customer.dateOfBirth) &&
+            Objects.equals(currentResidence, customer.currentResidence) &&
+            Objects.equals(orders, customer.orders) &&
+            Objects.equals(admin, customer.admin);
+}
+
+
+// public String toJson(){
+
+// }
+
 }
 
     

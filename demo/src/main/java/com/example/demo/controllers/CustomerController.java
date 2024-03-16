@@ -1,5 +1,6 @@
 package com.example.demo.controllers;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -12,16 +13,28 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.example.demo.models.Customer;
-import com.example.demo.services.CustomerService;
+import com.example.demo.models.Order;
+import com.example.demo.models.OrderProduct;
+import com.example.demo.services.impl.CustomerServiceImpl;
+import com.example.demo.services.impl.OrderProductServiceImpl;
+import com.example.demo.services.impl.OrderServiceImpl;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 
 @RestController
 @RequestMapping("/customers")
 public class CustomerController {
-    private final CustomerService customerService;
+    private final CustomerServiceImpl customerService;
+    private final OrderServiceImpl orderService;
+    private final OrderProductServiceImpl orderProductService;
+    private final ObjectMapper objectMapper;
 
-    public CustomerController(CustomerService customerService) {
+    public CustomerController(CustomerServiceImpl customerService, OrderServiceImpl orderService, OrderProductServiceImpl orderProductService) {
         this.customerService = customerService;
+        this.orderService = orderService;
+        this.orderProductService = orderProductService;
+        this.objectMapper = new ObjectMapper();
     }
 
     @PostMapping
@@ -33,6 +46,30 @@ public class CustomerController {
     public List<Customer> getCustomers() {
         return customerService.getCustomers();
     }
+
+    @GetMapping("/export/{customerID}")
+    public String exportDataToJson (Long customerID) throws JsonProcessingException {
+       
+
+        List<Order> orders = orderService.findByCustomerID(customerID);
+        List<OrderProduct> orderProducts = new ArrayList<>();
+
+        for (Order order : orders) {
+            orderProducts = orderProductService.findByOrderId(order.getOrderID());
+
+            // System.out.println("Order ID: "+order.getOrderID());
+            // for(OrderProduct orderProduct: orderProducts){
+            //     System.out.println(
+            // " product name: "+orderProduct.getProduct().getProductName() + " quantity: "+orderProduct.getQuantity()
+            // + " price: "+orderProduct.getPrice());
+            // }
+
+            
+        }
+        return objectMapper.writeValueAsString(orderProducts);
+    
+    }
+
     
     @GetMapping("/{id}")
     public Customer getCustomer(@PathVariable Long id) {

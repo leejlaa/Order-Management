@@ -6,7 +6,7 @@ import com.example.demo.models.Customer;
 
 public interface CustomerService {
 
-    public Customer createCustomer(Customer customer);
+    public Customer createCustomer(Long adminID,Customer customer);
     public Customer getCustomer(Long id);
     public Customer updateCustomer(Long id, Customer customer);
     public boolean deleteCustomer(String userName);

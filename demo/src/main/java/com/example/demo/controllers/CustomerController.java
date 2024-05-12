@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.example.demo.dto.CustomerDTO;
 import com.example.demo.models.Customer;
 import com.example.demo.models.Order;
 import com.example.demo.models.OrderProduct;
@@ -37,14 +38,24 @@ public class CustomerController {
         this.objectMapper = new ObjectMapper();
     }
 
-    @PostMapping
-    public Customer createCustomer(@RequestBody Customer customer) {
-        return customerService.createCustomer(customer);
+    @PostMapping("/{adminID}")
+    public Customer createCustomer(@PathVariable Long adminID, @RequestBody Customer customer) {
+        return customerService.createCustomer(adminID,customer);
     }
 
     @GetMapping
-    public List<Customer> getCustomers() {
-        return customerService.getCustomers();
+    public List<CustomerDTO> getCustomers() {
+        List<Customer> customers =  customerService.getCustomers();
+        List<CustomerDTO> customerDTOs = new ArrayList<>();
+        for (Customer customer : customers) {
+            CustomerDTO customerDTO = new CustomerDTO();
+            customerDTO.setUserName(customer.getUserName());
+            customerDTO.setID(customer.getID());
+            customerDTO.setEmail(customer.getEmail());
+            customerDTO.setRole(customer.getRole());
+            customerDTOs.add(customerDTO);
+        }
+        return customerDTOs;
     }
 
     @GetMapping("/export/{customerID}")
@@ -72,13 +83,26 @@ public class CustomerController {
 
     
     @GetMapping("/{id}")
-    public Customer getCustomer(@PathVariable Long id) {
-        return customerService.getCustomer(id);
+    public CustomerDTO getCustomer(@PathVariable Long id) {
+        Customer customer =  customerService.getCustomer(id);
+        CustomerDTO customerDTO = new CustomerDTO();
+        customerDTO.setUserName(customer.getUserName());
+        customerDTO.setID(customer.getID());
+        customerDTO.setEmail(customer.getEmail());
+        customerDTO.setRole(customer.getRole());
+        return customerDTO;
     }
 
     @PutMapping("/{id}")
-    public Customer updateCustomer(@PathVariable Long id, @RequestBody Customer customer) {
-        return customerService.updateCustomer(id, customer);
+    public CustomerDTO updateCustomer(@PathVariable Long id, @RequestBody Customer customer) {
+        Customer customerNew =  customerService.updateCustomer(id, customer);
+        CustomerDTO customerDTO = new CustomerDTO();
+        customerDTO.setUserName(customerNew.getUserName());
+        customerDTO.setID(customerNew.getID());
+        customerDTO.setEmail(customerNew.getEmail());
+        customerDTO.setRole(customerNew.getRole());
+
+        return customerDTO;
     }
     
     @DeleteMapping("/{userName}")

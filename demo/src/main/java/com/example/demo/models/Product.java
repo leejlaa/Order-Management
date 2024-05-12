@@ -21,6 +21,7 @@ import jakarta.persistence.Table;
 
 @Entity
 @Table(name = "products")
+
 public class Product {
     
     @Id
@@ -115,9 +116,6 @@ public class Product {
     public Admin getAdmin() {
         return admin;
     }
-
-    
- 
 
     public void setAdmin(Admin admin) {
         this.admin = admin;

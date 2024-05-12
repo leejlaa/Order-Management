@@ -2,6 +2,8 @@ package com.example.demo.models;
 
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -15,10 +17,12 @@ import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import jakarta.transaction.Transactional;
+import jakarta.persistence.CascadeType;
 
 
 @Entity
 @Table(name = "orders")
+
 public class Order {
 
     @Id
@@ -29,12 +33,12 @@ public class Order {
     @JoinColumn(name = "customer_id")
     private Customer customer;
 
-    @OneToMany(mappedBy = "order")
+
+    @OneToMany(mappedBy = "order", cascade = CascadeType.ALL)
     private List<OrderProduct> orderProducts;
 
 
     public Order() {
-        //TODO Auto-generated constructor stub
     }
     public Order(Long orderID, Customer customer, List<OrderProduct> orderProducts) {
         this.orderID = orderID;

@@ -4,12 +4,16 @@ import java.util.Objects;
 
 import org.json.simple.JSONObject;
 
+import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.ObjectIdGenerators;
+
 import jakarta.persistence.*;
 
 
 @Entity
 @Table(name = "admins")
 @AttributeOverride(name = "ID", column = @Column(name = "admin_id"))
+
 public class Admin  extends User{
 
     @ManyToOne

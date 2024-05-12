@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 import com.example.demo.models.Address;
 import com.example.demo.models.Customer;
 import com.example.demo.repositories.AddressRepository;
+import com.example.demo.repositories.AdminRepository;
 import com.example.demo.repositories.CustomerRepository;
 import com.example.demo.services.CustomerService;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -26,7 +27,10 @@ public class CustomerServiceImpl implements CustomerService{
     @Autowired
     private AddressRepository   addressRepository;
 
-    public Customer createCustomer(Customer customer) {
+    @Autowired
+    private AdminRepository adminRepository;
+
+    public Customer createCustomer(Long adminID, Customer customer) {
         // Check if the address already exists in the database
         java.util.Optional<Address> existingAddress = addressRepository.findByStreetAddress(customer.getCurrentResidence().getStreetAddress());
 
@@ -37,6 +41,7 @@ public class CustomerServiceImpl implements CustomerService{
         }
         
 
+        customer.setAdmin(adminRepository.findByID(adminID));
         // Save the customer (with potentially updated current residence) to the database
         return customerRepository.save(customer);
     }

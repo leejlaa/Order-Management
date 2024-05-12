@@ -325,19 +325,27 @@ public class Main {
 
         System.out.println("Please enter the email of the admin:");
         String email = scanner.nextLine();
-        admin.setEmail(email);
+
+        while(!(email.contains("@") && email.contains("."))){
+            System.out.println("Invalid email address. Please enter a valid email address.");
+            email = scanner.nextLine();
+        }
+        admin.setEmail(email);  
+
 
         admin.setRole("admin");
         admin.setCreatedByAdmin(currentAdmin);
                                 
-        if(adminServiceImpl.exists(adminUserName)){
+        while(adminServiceImpl.exists(adminUserName)){
             System.out.println("Admin with that username already exists!");
-        }
-        else{
-            adminServiceImpl.createAdmin(admin);
-            System.out.println("Admin created successfully!");
-        }
-            
+            System.out.println("Please enter the username of the admin:");
+            adminUserName = scanner.nextLine();
+            admin.setUserName(adminUserName);
+
+        }  
+
+        adminServiceImpl.createAdmin(admin);
+        System.out.println("Admin created successfully!");
     }
 
 
@@ -355,7 +363,11 @@ public class Main {
 
         System.out.println("Please enter the email of the customer:");
         String email = scanner.nextLine();
-        customer.setEmail(email);
+        while(!(email.contains("@") && email.contains("."))){
+            System.out.println("Invalid email address. Please enter a valid email address.");
+            email = scanner.nextLine();
+        }
+        customer.setEmail(email);  
         
         customer.setRole("customer");
 
@@ -398,16 +410,19 @@ public class Main {
         }
         
         customer.setCurrentResidence(address);
-        customer.setAdmin(currentAdmin);
+        
 
-
-        if(customerServiceImpl.customerExists(customerUserName)){
+        while(customerServiceImpl.customerExists(customerUserName)){
             System.out.println("Customer with that username already exists!");
+            System.out.println("Please enter the username of the customer:");
+            customerUserName = scanner.nextLine();
+            customer.setUserName(customerUserName);
+
         }
-        else{
-            customerServiceImpl.createCustomer(customer);
-            System.out.println("Customer created successfully!");
-        }
+
+        customerServiceImpl.createCustomer(customer.getID(),customer);
+        System.out.println("Customer created successfully!");
+
 
     }
 
@@ -470,16 +485,40 @@ public class Main {
     private void placeOrder(String userName) {
 
             Customer currentCustomer = customerServiceImpl.getCustomerByUserName(userName);
-            List<Long> productIDs = new ArrayList<>();
-            List<Integer> quantities = new ArrayList<>();
+           
+
+            Order order = new Order();
+            List<OrderProduct> orderProducts = new ArrayList<>();
 
             System.out.println("Please enter the name of the product you want to order:");
             String productName = scanner.nextLine();
-            productIDs.add(productServiceImpl.getProductByProductName(productName).getProductID());
-
+            Product product = productServiceImpl.getProductByProductName(productName);
+          
             System.out.println("Please enter the amount of the product you want to order:");
             int quantity = scanner.nextInt();
-            quantities.add(quantity);
+
+            if(product == null){
+                System.out.println("Product does not exist. Please enter a valid product name next time.");
+            }
+            if(quantity > product.getQuantity()){
+                System.out.println("The quantity you entered is more than the available quantity. Please enter a valid quantity next time. ");
+            }
+            if(quantity <= 0){
+                System.out.println("Please enter a valid quantity next time. ");
+            }
+            else{
+                product.setQuantity(product.getQuantity() - quantity);
+                productServiceImpl.updateProduct(product.getProductID(), product);
+            }
+
+            OrderProduct orderProduct = new OrderProduct();
+            orderProduct.setProduct(product);
+            orderProduct.setQuantity(quantity);
+            orderProduct.setPrice((long) (quantity * product.getPrice()));
+            orderProduct.setOrder(order);
+            orderProducts.add(orderProduct);
+
+            
 
             scanner.nextLine();
 
@@ -491,12 +530,35 @@ public class Main {
             while(!done.equals("y")){
                 System.out.println("Please enter the name of the product you want to order:");
                 productName = scanner.nextLine();
-                productIDs.add(productServiceImpl.getProductByProductName(productName).getProductID());
-
+                
                 System.out.println("Please enter the amount of the product you want to order:");
                 quantity = scanner.nextInt();
-                quantities.add(quantity);
 
+                product = productServiceImpl.getProductByProductName(productName);
+                if(product == null){
+                    System.out.println("Product does not exist. Please enter a valid product name.");
+                    continue;
+                }
+                if(quantity > product.getQuantity()){
+                    System.out.println("The quantity you entered is more than the available quantity. Please enter a valid quantity.");
+                    continue;
+                }
+                if(quantity <= 0){
+                    System.out.println("Please enter a valid quantity.");
+                    continue;
+                }
+                product.setQuantity(product.getQuantity() - quantity);
+                productServiceImpl.updateProduct(product.getProductID(), product);
+
+                
+
+
+                orderProduct = new OrderProduct();
+                orderProduct.setProduct(product);
+                orderProduct.setQuantity(quantity);
+                orderProduct.setPrice((long) (quantity * product.getPrice()));
+                orderProduct.setOrder(order);
+                orderProducts.add(orderProduct);
                 scanner.nextLine();
 
 
@@ -508,28 +570,49 @@ public class Main {
             String confirm = scanner.nextLine();
 
             if(confirm.equals("y")){
-                Order order = orderServiceImpl.createOrderForCustomer(currentCustomer.getID(), productIDs,quantities);
-                // List<Order> orders = orderService.getOrdersByCustomer(currentCustomer.getID());
+                order.setCustomer(currentCustomer);
+                order.setOrderProducts(orderProducts);
+                Order orderFinal = orderServiceImpl.createOrderForCustomer(currentCustomer.getID(), order);
+                if(orderFinal != null)
+                System.out.println("Order placed successfully!");
 
-                System.out.println("\n Order details:");
-                int total = 0;
-                // for (Order order : orders) {
-                orderProductServiceImpl.getOrderProductsByOrderId(order.getOrderID()).forEach(
+                double total = 0;
+
+                System.out.println("Order details:");
+                for(OrderProduct x: orderProducts){
+                    System.out.println("\n Product name:  "+x.getProduct().getProductName() + " Quantity: " + x.getQuantity() + " Total price for this product:  " + (double)x.getPrice() +
+                    " Single product price: " +  ((double)x.getPrice()/x.getQuantity()) + "\n");
+                
+                    total += (double)x.getPrice();
+                }
+                System.out.println("Total price: "+ (double)total);
+            
+
+               ;
+               
+                
+                // List<Order> orders = orderServiceImpl.getOrdersByCustomer(currentCustomer.getID());
+
+                // System.out.println("\n Order details:");
+                // int total = 0;
+                // for (Order o : orders) {
+                // orderProductServiceImpl.getOrderProductsByOrderId(o.getOrderID()).forEach(
                     
-                x -> System.out.println("\n Product name:  "+x.getProduct().getProductName() + " Quantity: " + x.getQuantity() + " Total price for this product:  " + x.getPrice() +
-                " Single product price: " +  (x.getPrice()/x.getQuantity()) + "\n")
-                );
-                List<OrderProduct> ordersProducts = orderProductServiceImpl.getOrderProductsByOrderId(order.getOrderID());
-                    for(OrderProduct x: ordersProducts){
-                        total += x.getPrice();
-                    }
-                    System.out.println("Total price: "+total);
+                // x -> System.out.println("\n Product name:  "+x.getProduct().getProductName() + " Quantity: " + x.getQuantity() + " Total price for this product:  " + (double)x.getPrice() +
+                // " Single product price: " +  ((double)x.getPrice()/x.getQuantity()) + "\n")
+                // );
+                // List<OrderProduct> ordersProducts = orderProductServiceImpl.getOrderProductsByOrderId(o.getOrderID());
+                //     for(OrderProduct x: ordersProducts){
+                //         total += (double)x.getPrice();
+                //     }
+                //     System.out.println("Total price: "+ (double)total);
                 // }
                 
             }else{
                 System.out.println("Order not placed!");
             }
-        
+
+           
     }
 
 

@@ -1,6 +1,7 @@
 package com.example.demo.controllers;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -14,6 +15,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.service.annotation.DeleteExchange;
 
+import com.example.demo.dto.AddressDTO;
 import com.example.demo.models.Address;
 import com.example.demo.services.impl.AddressServiceImpl;
 
@@ -30,19 +32,31 @@ public class AddressConstoller {
     }
 
     @GetMapping
-    public List<Address> getAddresses() {
-        return addressServiceImpl.getAddresses();
+    public List<AddressDTO> getAddresses() {
+        List<Address> addresses =  addressServiceImpl.getAddresses();
+
+        return addresses.stream().map(address -> {
+            AddressDTO addressDTO = new AddressDTO();
+            addressDTO.setCity(address.getCity());
+            addressDTO.setCountry(address.getCountry());
+            addressDTO.setPostalCode(address.getPostalCode());
+            addressDTO.setStreetAddress(address.getStreetAddress());
+            return addressDTO;
+        }).collect(Collectors.toList());
+
     }
 
-    @PutMapping
-    public Address updateAddress(@RequestBody Long ID , Address address) {
-        return addressServiceImpl.updateAddress(ID, address);
+    @PutMapping("{ID}")
+    public AddressDTO updateAddress(@PathVariable Long ID , Address address) {
+        Address addressNew =  addressServiceImpl.updateAddress(ID, address);
+        AddressDTO addressDTO = new AddressDTO();
+        addressDTO.setCity(addressNew.getCity());
+        addressDTO.setCountry(addressNew.getCountry());
+        addressDTO.setPostalCode(addressNew.getPostalCode());
+        addressDTO.setStreetAddress(addressNew.getStreetAddress());
+        return addressDTO;
     }
 
     
-    @DeleteMapping("{ID}")
-    public ResponseEntity<String> deleteResource(@PathVariable Long ID) {
-        addressServiceImpl.deleteAddress(ID);
-        return ResponseEntity.ok("Address deleted successfully");
-    }
+  
 }

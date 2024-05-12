@@ -21,14 +21,19 @@ public class ProductServiceImpl implements ProductService{
     @Autowired
     private AdminRepository adminRepository;
 
+    public ProductServiceImpl(ProductRepository productRepository, AdminRepository adminRepository) {
+        this.productRepository = productRepository;
+        this.adminRepository = adminRepository;
+    }
+
     public Product createProduct(Product product) {
-           java.util.Optional<Product> productWithExistingAdmin = productRepository.findAll()
-                .stream()
-                .filter(x -> x.getAdmin().equals(product.getAdmin()))
-                .findFirst();
+        Admin admin = adminRepository.findByID(product.getAdmin().getID());
 
-        productWithExistingAdmin.ifPresent(c -> product.setAdmin(c.getAdmin()));
-
+        if (admin == null) {
+            return null;
+        }
+        product.setAdmin(admin);
+        
         return productRepository.save(product);
     
         

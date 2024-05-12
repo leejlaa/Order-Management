@@ -6,8 +6,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.example.demo.dto.AdminDTO;
+import com.example.demo.dto.ProductDTO;
 import com.example.demo.models.Product;
 import com.example.demo.services.impl.ProductServiceImpl;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -27,13 +31,54 @@ public class ProductController {
     private ProductServiceImpl productService;
 
     @PostMapping
-    public Product createProduct(@RequestBody Product product) {
-        return productService.createProduct(product);
+    public ProductDTO createProduct(@RequestBody Product product) {
+
+        ProductDTO productDTO = new ProductDTO();
+        productDTO.setProductName(product.getProductName());
+        productDTO.setProductID(product.getProductID());
+        productDTO.setPrice(product.getPrice());
+        productDTO.setQuantity(product.getQuantity());
+        productDTO.setReleaseDate(product.getReleaseDate());
+        productDTO.setAvailabilityDate(product.getAvailabilityDate());
+
+        productService.createProduct(product);
+
+        return productDTO;
+
+        
     }
     
     @GetMapping
-    public List<Product> getProducts() {
-        return productService.getProducts();
+    public String getProducts() {
+
+        ObjectMapper objectMapper = new ObjectMapper();
+
+        String products = "";
+
+        List<Product> productList = productService.getProducts();
+
+       for(Product p: productList){
+        if(p.getQuantity() > 0){
+          ProductDTO productDTO = new ProductDTO();
+
+            productDTO.setProductName(p.getProductName());
+            productDTO.setProductID(p.getProductID());
+            productDTO.setPrice(p.getPrice());
+            productDTO.setQuantity(p.getQuantity());
+            productDTO.setReleaseDate(p.getReleaseDate());
+            productDTO.setAvailabilityDate(p.getAvailabilityDate());
+
+            String json;
+            try {
+                json = objectMapper.writeValueAsString(productDTO);
+                products += json+"\n";
+            } catch (JsonProcessingException e) {
+                e.printStackTrace();
+            }
+        }
+       }
+
+        return products;
     }
 
     @GetMapping("/{id}")
@@ -47,8 +92,19 @@ public class ProductController {
     }
 
     @DeleteMapping("/{productName}")    
-    public boolean deleteProduct(@PathVariable String productName) {
-        return productService.deleteProduct(productName);
+    public void deleteProduct(@PathVariable String productName) {
+        Product deleted = productService.getProductByProductName(productName);
+        deleted.setQuantity(-1);
+         // set quantity to -1 to delete but keep the product as historical data
+        productService.updateProduct(deleted.getProductID(),deleted); 
+
     }
-    
+    @DeleteMapping("/id/{id}")    
+    public void deleteProduct(@PathVariable Long id) {
+        Product deleted = productService.getProduct(id);
+        deleted.setQuantity(-1);
+         // set quantity to -1 to delete but keep the product as historical data
+        productService.updateProduct(deleted.getProductID(),deleted); 
+
+    }
 }

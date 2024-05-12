@@ -1,6 +1,8 @@
 package com.example.demo.controllers;
 
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -11,8 +13,13 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.example.demo.dto.AdminDTO;
+import com.example.demo.dto.ProductDTO;
 import com.example.demo.models.Order;
+import com.example.demo.models.OrderProduct;
 import com.example.demo.services.impl.OrderServiceImpl;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -35,11 +42,85 @@ public class OrderController {
 //         // return ResponseEntity.status(HttpStatus.CREATED).body(createdOrder);
 //     }
 
+   @PostMapping("/{customerId}")
+public void createOrder(@PathVariable Long customerId, @RequestBody Map<String, List<?>> orderRequest ){
+
+    List<?> productIdsObj = orderRequest.get("productIds");
+    List<?> quantitiesObj = orderRequest.get("quantities");
+
+    if (productIdsObj instanceof List && quantitiesObj instanceof List) {
+        List<Long> productIds = ((List<?>) productIdsObj).stream()
+            .map(o -> Long.valueOf(String.valueOf(o))) // Convert each object to Long
+            .collect(Collectors.toList());
+
+        List<Integer> quantities = ((List<?>) quantitiesObj).stream()
+            .map(o -> Integer.valueOf(String.valueOf(o))) // Convert each object to Integer
+            .collect(Collectors.toList());
+
+        // orderService.createOrderForCustomer(customerId, productIds, quantities);
+    } else {
+        // Handle error: If the keys are not found or the values are not lists
+    }
+}
+
+
    
 
     @GetMapping("/{id}")
-    public Order getOrder(@RequestParam Long id) {
-        return orderService.getOrder(id);
+    public String getOrder(@PathVariable Long id) {
+
+        ObjectMapper objectMapper = new ObjectMapper();
+        String json = ""; 
+       
+       List<Order> orders = orderService.findByCustomerID(id);
+
+       double total = 0;
+       for(Order o : orders){
+
+        json += "Order ID: "+o.getOrderID()+"\n";
+        
+
+        for (OrderProduct orderProduct : o.getOrderProducts()) {
+
+            ProductDTO productDTO = new ProductDTO();
+            productDTO.setProductName(orderProduct.getProduct().getProductName());
+            productDTO.setProductID(orderProduct.getProduct().getProductID());
+            productDTO.setPrice(orderProduct.getProduct().getPrice());
+            productDTO.setQuantity(orderProduct.getQuantity());
+            productDTO.setReleaseDate(orderProduct.getProduct().getReleaseDate());
+            productDTO.setAvailabilityDate(orderProduct.getProduct().getAvailabilityDate());
+            total += orderProduct.getProduct().getPrice()* orderProduct.getQuantity();
+            try {
+                json += objectMapper.writeValueAsString(productDTO)+ "\n";
+            }catch (JsonProcessingException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+                }
+            }
+            json += "Total: "+total+"\n";
+            total = 0;
+        }
+
+        
+      
+
+        // adminDTO = new AdminDTO();
+        // adminDTO.setUserName(admin.getUserName());
+        // adminDTO.setID(admin.getID());
+        // adminDTO.setEmail(admin.getEmail());
+        // adminDTO.setRole(admin.getRole());
+       
+        // try {
+        //     json = objectMapper.writeValueAsString(adminDTO);
+        //     users += json+"\n";
+        // } catch (JsonProcessingException e) {
+        //     // TODO Auto-generated catch block
+        //     e.printStackTrace();
+        // }
+
+       
+       return json;
+       
     }
 
     // @GetMapping("/{customerId}")
@@ -49,7 +130,12 @@ public class OrderController {
 
     @PutMapping("/{id}")
     public Order updateOrder(@PathVariable Long id, @RequestBody Order order) {
-    return orderService.updateOrder(id, order);
+        return orderService.updateOrder(id, order);
+    }
+
+    @PostMapping
+    public void allOrders(@RequestBody String path) {
+        orderService.printAllOrdersToCSV(path);
     }
 
     

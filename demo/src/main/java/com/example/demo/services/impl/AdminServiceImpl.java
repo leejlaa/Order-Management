@@ -1,10 +1,12 @@
 package com.example.demo.services.impl;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.example.demo.dto.AdminDTO;
 import com.example.demo.models.Admin;
 import com.example.demo.models.Product;
 import com.example.demo.repositories.AdminRepository;
@@ -24,13 +26,11 @@ public class AdminServiceImpl implements AdminService{
 
 
     public Admin createAdmin(Admin admin) {
-        // Check if an admin with the same information exists
+       
         Admin existingAdmin = adminRepository.findByUserName(admin.getUserName());
         if (existingAdmin != null) {
             return null;
         }
-
-        // No duplicate admin found, proceed with saving the new admin
         return adminRepository.save(admin);
     }
 
@@ -45,8 +45,28 @@ public class AdminServiceImpl implements AdminService{
         return false;
     }
 
-    public List<Admin> getAdmins() {
+
+    public List<Admin> getAllAdmins() {
         return adminRepository.findAll();
+    }
+    
+    public List<AdminDTO> getAdmins() {
+        List<Admin> admins =  adminRepository.findAll();
+        List<AdminDTO> adminDTOs = new ArrayList<>(admins.size());
+       
+        for (int i = 0; i < admins.size(); i++) {
+            AdminDTO adminDTO = new AdminDTO();
+            Admin admin = admins.get(i);
+            
+            // Set AdminDTO properties from Admin
+            adminDTO.setID(admin.getID());
+            adminDTO.setUserName(admin.getUserName());
+            adminDTO.setEmail(admin.getEmail());
+            adminDTO.setRole(admin.getRole());
+            adminDTOs.add(adminDTO);
+        }
+
+    return adminDTOs;
     }
 
     public Admin updateAdmin(Long id, Admin admin) {

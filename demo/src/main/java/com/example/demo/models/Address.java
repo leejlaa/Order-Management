@@ -2,6 +2,7 @@ package com.example.demo.models;
 
 import java.util.List;
 
+
 import jakarta.persistence.Embeddable;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -12,6 +13,7 @@ import jakarta.persistence.Table;
 
 @Entity
 @Table(name = "addresses")
+
 public class Address {
 
     @Id
@@ -22,6 +24,7 @@ public class Address {
     private String city;
     private String country;
 
+   
     @OneToMany(mappedBy = "currentResidence")
     private List<Customer> customers;
 

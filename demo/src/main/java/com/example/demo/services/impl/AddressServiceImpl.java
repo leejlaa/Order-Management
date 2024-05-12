@@ -58,6 +58,7 @@ public class AddressServiceImpl implements AddressService{
     public List<Address> getAddresses() {
         return addressRepository.findAll();
     }
+
     
     
 }

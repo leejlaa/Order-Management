@@ -41,10 +41,6 @@ public class OrderProductController {
         return orderProductService.updateOrderProduct(id, orderProduct);
     }
 
-    @DeleteMapping("/{id}")
-    public boolean deleteOrderProduct(@PathVariable Long id) {
-        return orderProductService.deleteOrderProduct(id);
-    }
 
     @GetMapping
     public List<OrderProduct> getAllOrderProducts() {

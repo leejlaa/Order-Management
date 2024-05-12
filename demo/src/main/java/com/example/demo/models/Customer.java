@@ -6,6 +6,11 @@ import java.util.Objects;
 
 import org.springframework.context.annotation.Lazy;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
+import com.fasterxml.jackson.annotation.ObjectIdGenerators;
+
 import jakarta.persistence.AttributeOverride;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
@@ -22,9 +27,10 @@ import jakarta.persistence.Table;
 @Entity
 @Table(name = "customers")
 @AttributeOverride(name = "ID", column = @Column(name = "customer_id"))
+
 public class Customer extends User{
 
-    
+    @Column(name = "first_name")
     private String firstName;
 
     @Column(name = "last_name")
@@ -33,15 +39,15 @@ public class Customer extends User{
     @Column(name = "date_of_birth")
     private Date dateOfBirth;
 
-    
-    @ManyToOne(cascade = CascadeType.MERGE, fetch = FetchType.LAZY)
+    @ManyToOne(cascade = CascadeType.MERGE)
     @JoinColumn(name = "address_id")
     private Address currentResidence;
 
-
+   
     @OneToMany(mappedBy = "customer", cascade = CascadeType.ALL)
     private List<Order> orders;
 
+    
     @ManyToOne(cascade = CascadeType.MERGE)
     @JoinColumn(name = "admin_id")
     private Admin admin;

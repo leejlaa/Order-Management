@@ -34,7 +34,7 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
 
     @Modifying
     @Query("UPDATE Product p SET p.quantity = p.quantity - :quantity WHERE p.productName = :productName")
-    void decreaseQuantityByProductName(@Param("productName") String productName, @Param("quantity") int quantity);
+    Integer decreaseQuantityByProductName(@Param("productName") String productName, @Param("quantity") int quantity);
     
     @Query(value = "SELECT jsonb_agg(jsonb_build_object('ID', p.productid, 'product name', p.product_name, 'quantity', p.quantity, 'realease date' , p.release_date, 'createdBy', p.admin_id)) FROM Products p;", nativeQuery = true)
     String findAllProductsJson();

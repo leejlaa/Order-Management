@@ -47,32 +47,34 @@ public class OrderServiceImpl implements OrderService{
     @Autowired
     private ObjectMapper objectMapper;
 
-    
-    public OrderServiceImpl(OrderRepository orderRepository, CustomerRepository customerRepository) {
+    public OrderServiceImpl(OrderRepository orderRepository, CustomerRepository customerRepository, OrderProductRepository orderProductRepository, ProductRepository productRepository, ObjectMapper objectMapper) {
         this.orderRepository = orderRepository;
         this.customerRepository = customerRepository;
+        this.orderProductRepository = orderProductRepository;
+        this.productRepository = productRepository;
+        this.objectMapper = objectMapper;
     }
 
 
-    public ArrayList<String>  allPreviousOrders(Long customerID) throws JsonProcessingException{
-
-        ArrayList<String> orderList = new ArrayList<String>();
+    public List<String> allPreviousOrders(Long customerID) throws JsonProcessingException {
+        List<String> orderList = new ArrayList<>();
         List<Order> orders = orderRepository.findAllOrdersWithProductsByCustomerID(customerID);
+        
         for (Order order : orders) {
-
             Long orderId = order.getOrderID();
-           
+            
             for (OrderProduct orderProduct : order.getOrderProducts()) {
-                objectMapper.writeValueAsString(orderProduct);
-                orderList.add(objectMapper.writeValueAsString(orderProduct));
+                String orderProductJson = objectMapper.writeValueAsString(orderProduct);
+                orderList.add(orderProductJson);
             }
         }
-        return orderList;
         
+        return orderList;
     }
+    
 
-     public void printAllOrdersToCSV(String filePath) {
-        // String filePath = System.getProperty("user.dir") + File.separator + file;
+     public void printAllOrdersToCSV(String file) {
+        String filePath = System.getProperty("user.dir") + File.separator + file;
         try (FileWriter writer = new FileWriter(filePath)) {
             writer.append("Order ID,Product ID,Product Name\n");
 
@@ -93,74 +95,48 @@ public class OrderServiceImpl implements OrderService{
         }
     }
     @Transactional
-    public Order createOrderForCustomer(Long customerId, List<Long> productIDs, List<Integer> quantities) {
+    public Order createOrderForCustomer(Long customerId, Order order) {
         // Check if customer exists
-        Order existingOrder = new Order();
         java.util.Optional<Customer> optionalCustomer = customerRepository.findById(customerId);
         if (optionalCustomer.isPresent()) {
-            // // Customer exists, fetch existing order if any
-            // existingOrder = orderRepository.findByCustomerID(customerId);
-            // if (existingOrder == null) {
-            //     // No existing order, create a new one
-            //     existingOrder = new Order();
-            // }
-            // Populate order details
-            List<Product> products = productRepository.findAllById(productIDs);
-            List<OrderProduct> orderProducts = new ArrayList<>();
-            for (Product product : products) {
-                OrderProduct orderProduct = new OrderProduct();
-                orderProduct.setProduct(product);
-                orderProduct.setQuantity(quantities.get(products.indexOf(product)));
-                orderProduct.setPrice((long) (quantities.get(products.indexOf(product)) * product.getPrice()));
-                orderProduct.setOrder(existingOrder);
-                orderProducts.add(orderProduct);
-                productRepository.decreaseQuantityByProductName(product.getProductName(), quantities.get(products.indexOf(product)));
-            }
-            // Save products and order products
-            orderProductRepository.saveAll(orderProducts);
-            existingOrder.setOrderProducts(orderProducts);
-            // Set customer and save order
-            existingOrder.setCustomer(optionalCustomer.get());
-            
+            Customer customer = optionalCustomer.get();
+            order.setCustomer(customer);
+            return orderRepository.save(order);
         } else {
             // Customer does not exist, handle as required (e.g., throw exception, return null)
-           
+            return null;
         }
 
-        System.out.println("Ordered successfully!");
-        return orderRepository.save(existingOrder);
-
     }
-    
 
 
-    public String exportDataToJson (Long customerID) {
+    // public String exportDataToJson (Long customerID) {
        
 
-        List<Order> orders = orderRepository.findByCustomerID(customerID);
-        List<OrderProduct> orderProducts = new ArrayList<>();
+    //     List<Order> orders = orderRepository.findByCustomerID(customerID);
+    //     List<OrderProduct> orderProducts = new ArrayList<>();
 
-        for (Order order : orders) {
-            orderProducts = orderProductRepository.findByOrderId(order.getOrderID());
+    //     for (Order order : orders) {
+    //         orderProducts = orderProductRepository.findByOrderId(order.getOrderID());
 
-            // System.out.println("Order ID: "+order.getOrderID());
-            // for(OrderProduct orderProduct: orderProducts){
-            //     System.out.println(
-            // " product name: "+orderProduct.getProduct().getProductName() + " quantity: "+orderProduct.getQuantity()
-            // + " price: "+orderProduct.getPrice());
-            // }
+    //         // System.out.println("Order ID: "+order.getOrderID());
+    //         // for(OrderProduct orderProduct: orderProducts){
+                
+    //         // text=" product name: "+orderProduct.getProduct().getProductName() + " quantity: "+orderProduct.getQuantity()
+    //         // + " price: "+orderProduct.getPrice()+"\n";
+            
 
             
-        }
-        try {
-            return objectMapper.writeValueAsString(orderProducts);
-        } catch (JsonProcessingException e) {
+    //     }
+    //     try {
+    //         return objectMapper.writeValueAsString(orderProducts);
+    //     } catch (JsonProcessingException e) {
 
-            e.printStackTrace();
-            return null; 
-        }
+    //         e.printStackTrace();
+    //         return null; 
+    //     }
     
-    }
+    // }
 
     public List<Order> findByCustomerID(Long customerID) {
         return orderRepository.findByCustomerID(customerID);
